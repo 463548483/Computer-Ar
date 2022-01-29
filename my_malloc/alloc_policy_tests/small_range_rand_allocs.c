@@ -80,6 +80,7 @@ int main(int argc, char * argv[]) {
       for (k = 0; k < 50; k++) {
         unsigned item_to_free = free_list[j + k];
         FREE(malloc_items[malloc_set][item_to_free].address);
+        //        print_chain();
       }  //for k
       for (k = 0; k < 50; k++) {
         malloc_items[1 - malloc_set][j + k].address =
