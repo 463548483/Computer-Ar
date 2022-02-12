@@ -104,14 +104,14 @@ int init_server(const char * port){
   } 
 
   cout << "Waiting for connection on port " << port << endl;
-  struct sockaddr_storage socket_addr;
-  socklen_t socket_addr_len = sizeof(socket_addr);
-  int client_connection_fd;
-  client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
-  if (client_connection_fd == -1) {
-    cerr << "Error: cannot accept connection on socket" << endl;
-    exit(EXIT_FAILURE);;
-  } //if
+  // struct sockaddr_storage socket_addr;
+  // socklen_t socket_addr_len = sizeof(socket_addr);
+  // int client_connection_fd;
+  // client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
+  // if (client_connection_fd == -1) {
+  //   cerr << "Error: cannot accept connection on socket" << endl;
+  //   exit(EXIT_FAILURE);;
+  // } //if
 
   // char buffer[512];
   // recv(client_connection_fd, buffer, 9, 0);
@@ -144,7 +144,7 @@ int init_server(const char * port){
 //   exit(0);
 // }
 
-int server_send(int listenfd, char* & client_hostname,char* &client_port){
+int server_send(int listenfd, string & client_hostname,string & client_port){
   socklen_t clientlen;
   struct sockaddr_storage clientaddr; /* Enough space for any address */
   //char client_hostname[MAXLINE], client_port[MAXLINE];
@@ -156,9 +156,15 @@ int server_send(int listenfd, char* & client_hostname,char* &client_port){
     exit(EXIT_FAILURE);
   }
 
-  getnameinfo((struct sockaddr *) &clientaddr, clientlen, client_hostname, MAXLINE,
-  client_port, MAXLINE, 0);
-  printf("Connected to (%s, %s)\n", client_hostname, client_port);
+  char host[1024];
+  char service[20];
+
+  getnameinfo((struct sockaddr *) &clientaddr, clientlen, host, MAXLINE,
+  service, MAXLINE, 0);
+
+  client_hostname=host;
+  client_port=service;
+  
   return connfd;
 
   

@@ -9,4 +9,4 @@ using namespace std;
 
 int init_client(const char * hostname, const char * port);
 int init_server(const char * port);
-int server_send(int listenfd, char* & client_hostname,char* & client_port);
+int server_send(int listenfd, string & client_hostname,string & client_port);

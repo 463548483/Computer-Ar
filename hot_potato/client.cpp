@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   send(socket_fd, message, strlen(message), 0);
 
   freeaddrinfo(host_info_list);
-  close(socket_fd);
+  //close(socket_fd);
 
   return 0;
 }
