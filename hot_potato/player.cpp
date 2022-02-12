@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include "function.h"
 
 using namespace std;
 
@@ -49,13 +50,17 @@ int main(int argc, char *argv[])
     return -1;
   } //if
   int mynum=0;
-  recv(socket_fd,&mynum,sizeof(mynum),0);  
-  const char *message = "Player is ready to play";
-  send(socket_fd, message, strlen(message), 0);
-  char neigh_host[128];
+  recv(socket_fd,&mynum,sizeof(mynum),0); 
+  string response="Player "+to_string(mynum)+" is ready to play";
+  //char message[128];
+  //strcpy(message,response.c_str());
+  send(socket_fd, &response, MAXLINE, 0);
+  //char neigh_host[128];
+  char * neigh_host;
   recv(socket_fd,&neigh_host,sizeof(neigh_host),0);
-  int neigh_port=0;
+  char * neigh_port;
   recv(socket_fd,&neigh_port,sizeof(neigh_port),0);
+  cout<<"host:"<<neigh_host<<" port:"<<neigh_port<<endl;
 
   freeaddrinfo(host_info_list);
   close(socket_fd);

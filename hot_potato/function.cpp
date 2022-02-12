@@ -7,7 +7,7 @@
 #include "function.h"
 
 using namespace std;
-int MAXLINE=100;
+
 
 int init_client(const char * hostname, const char * port) {
   int status;
@@ -144,7 +144,7 @@ int init_server(const char * port){
 //   exit(0);
 // }
 
-int server_send(int listenfd, string & client_hostname,string & client_port){
+int server_send(int listenfd, char (& client_hostname)[MAXLINE], char (& client_port)[MAXLINE]){
   socklen_t clientlen;
   struct sockaddr_storage clientaddr; /* Enough space for any address */
   //char client_hostname[MAXLINE], client_port[MAXLINE];
@@ -156,14 +156,14 @@ int server_send(int listenfd, string & client_hostname,string & client_port){
     exit(EXIT_FAILURE);
   }
 
-  char host[1024];
-  char service[20];
+  char host[MAXLINE];
+  char service[MAXLINE];
 
   getnameinfo((struct sockaddr *) &clientaddr, clientlen, host, MAXLINE,
   service, MAXLINE, 0);
 
-  client_hostname=host;
-  client_port=service;
+  memcpy(client_hostname,host,MAXLINE);
+  memcpy(client_port,service,MAXLINE);
   
   return connfd;
 

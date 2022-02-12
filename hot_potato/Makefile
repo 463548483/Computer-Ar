@@ -1,9 +1,9 @@
-TARGETS=client ringmaster function
+TARGETS=player ringmaster function
 CFLAGS=-std=gnu++11 -pedantic -Wall -Werror -ggdb3
 
 all: $(TARGETS)
 
-client: client.cpp
+player: player.cpp
 	g++ -g -o $@ $^
 
 ringmaster: ringmaster.o function.o

@@ -27,11 +27,11 @@ int main(int argc, char * argv[]) {
   
   //connect to player process
   vector<int> players_fd;
-  vector<string> players_hostname;
-  vector<string> players_port;
+  vector<char [MAXLINE]> players_hostname;
+  vector<char [MAXLINE]> players_port;
   for (int i=0;i<num_player;i++){
-    string client_hostname;
-    string client_port;
+    char client_hostname[MAXLINE];
+    char client_port[MAXLINE];
 
     int connfd=server_send(socket_fd,client_hostname,client_port);
     cout<<"Connected to "<<client_hostname<<" on "<<client_port<<endl;
@@ -48,13 +48,12 @@ int main(int argc, char * argv[]) {
   //send neighbor info to player
   for (int i=0;i<num_player;i++){
     int neigh_id=(i+1)%num_player;
-    char neigh_host[128]="";
-    strcpy(neigh_host,players_hostname[neigh_id].c_str());
-    int neigh_port=stoi(players_port[neigh_id]);
-    send(players_fd[i],&neigh_host,sizeof(neigh_host),0);
-    send(players_fd[i],&neigh_port,sizeof(neigh_port),0);
+    //char * neigh_host=players_hostname[neigh_id];
+    //int neigh_port=stoi(players_port[neigh_id]);
+    send(players_fd[i],&players_hostname[neigh_id],MAXLINE,0);
+    send(players_fd[i],&players_port[neigh_id],MAXLINE,0);
   }
-  
+
   //play photo
   //exit
   close(socket_fd);
