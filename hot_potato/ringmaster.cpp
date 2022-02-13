@@ -9,6 +9,12 @@
 
 using namespace std;
 
+void send_ip(int index,int connfd, vector<char *> & library){
+    char * neigh_ip=library[index];
+    send(connfd,neigh_ip,MAXLINE,0);
+}
+
+
 int main(int argc, char * argv[]) {
   if (argc != 4) {
     cout << "ringmaster <port_num> <num_players> <num_hops>" << endl;
@@ -27,35 +33,78 @@ int main(int argc, char * argv[]) {
   
   //connect to player process
   vector<int> players_fd;
-  vector<char [MAXLINE]> players_hostname;
-  vector<char [MAXLINE]> players_port;
+  vector<char *> players_hostname;
+  vector<char *> players_port;
   for (int i=0;i<num_player;i++){
-    char client_hostname[MAXLINE];
-    char client_port[MAXLINE];
+    char * client_hostname=new char[MAXLINE]{0};
+    char * client_port=new char[MAXLINE]{0};
+    char * player_server_port=new char[MAXLINE]{0};
 
     int connfd=server_send(socket_fd,client_hostname,client_port);
     cout<<"Connected to "<<client_hostname<<" on "<<client_port<<endl;
     send(connfd,&i,sizeof(i),0);
     send(connfd,&num_player,sizeof(num_player),0);
-    
-    char message[512];
-    recv(connfd,&message,sizeof(message),0);
+    recv(connfd,player_server_port,sizeof(player_server_port),0);
+
     players_fd.push_back(connfd);
     players_hostname.push_back(client_hostname);
-    players_port.push_back(client_port);
-    cout<<message<<endl;
+    players_port.push_back(player_server_port);
   }
   //send neighbor info to player
   for (int i=0;i<num_player;i++){
-    int neigh_id=(i+1)%num_player;
-    //char * neigh_host=players_hostname[neigh_id];
-    //int neigh_port=stoi(players_port[neigh_id]);
-    send(players_fd[i],&players_hostname[neigh_id],MAXLINE,0);
-    send(players_fd[i],&players_port[neigh_id],MAXLINE,0);
+    //send left neighbor hostname and port
+    int left_neigh_id=(i-1+num_player)%num_player;
+    send_ip(left_neigh_id,players_fd[i],players_hostname);
+    send_ip(left_neigh_id,players_fd[i],players_port);
+    // //send player own port
+    // send_ip(i,players_fd[i],players_port);
+
+  }
+  for (int i=0;i<num_player;i++){   
+    //receive ready to play
+    char message[MAXLINE];
+    recv(players_fd[i],message,MAXLINE,0);
+    cout<<message<<endl;
   }
 
-  //play photo
+  //play potato
+  srand((unsigned int)time(NULL)+num_player);
+  int random=rand()%num_player;
+  cout<<"Ready to start the game, sending potato to player "+to_string(random)<<endl;
+  Potato  init_potato;
+  init_potato.remain_hop=num_hops;
+  send(players_fd[random],&init_potato,sizeof(init_potato),0);
+  //cout<<"send fd "<<players_fd[random]<<endl;
+  //receive back
+  
+  int numfds=max_fds(players_fd)+1;
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  for (int i = 0; i < num_player; i++) {
+    FD_SET(players_fd[i], &readfds);
+  }
+
+  select(numfds + 1, &readfds, NULL, NULL, NULL);
+
+  
+  for (int i = 0; i < 3; i++) {
+    if (FD_ISSET(players_fd[i], &readfds)) {
+      recv(players_fd[i], &init_potato, sizeof(init_potato), MSG_WAITALL);
+      cout<<"Trace of potato:"<<endl;
+      for (int i=0;i<init_potato.round;i++){
+        cout<<init_potato.trace_player[i];
+        if (i!=init_potato.round-1){
+          cout<<",";
+        }
+      }
+      cout<<endl;
+      break;
+    }
+  }
+
   //exit
   close(socket_fd);
   return 0;
+
+
 }

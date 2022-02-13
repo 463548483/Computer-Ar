@@ -73,7 +73,7 @@ int init_server(const char * port){
     exit(EXIT_FAILURE);;
   } 
 
-  if (port==NULL){
+  if (strcmp(port,"")==0){
     struct sockaddr_in * addrinfo=(struct sockaddr_in *)(host_info_list->ai_addr);
     addrinfo->sin_port=0;
   }
@@ -126,25 +126,7 @@ int init_server(const char * port){
 }
 
 
-
-// int clientecho(char * host, char * port){
-//   int clientfd;
-//   char buf[MAXLINE];
-//   rio_t rio;
-
-//   clientfd = Open_clientfd(host, port);
-//   Rio_readinitb(&rio, clientfd);
-
-//   while (Fgets(buf, MAXLINE, stdin) != NULL) {
-//   Rio_writen(clientfd, buf, strlen(buf));
-//   Rio_readlineb(&rio, buf, MAXLINE);
-//   Fputs(buf, stdout);
-//   }
-//   //close(clientfd);
-//   exit(0);
-// }
-
-int server_send(int listenfd, char (& client_hostname)[MAXLINE], char (& client_port)[MAXLINE]){
+int server_send(int listenfd, char * client_hostname, char * client_port){
   socklen_t clientlen;
   struct sockaddr_storage clientaddr; /* Enough space for any address */
   //char client_hostname[MAXLINE], client_port[MAXLINE];
@@ -168,4 +150,24 @@ int server_send(int listenfd, char (& client_hostname)[MAXLINE], char (& client_
   return connfd;
 
   
+}
+
+
+
+int get_port(int socket_fd) {
+  struct sockaddr_in addrinfo;
+  socklen_t len = sizeof(addrinfo);
+  if (getsockname(socket_fd, (struct sockaddr *)&addrinfo, &len) == -1) {
+    cerr << "Error: cannot getsockname" << endl;
+    exit(EXIT_FAILURE);
+  }
+  return ntohs(addrinfo.sin_port);
+}
+
+int max_fds(vector<int> & fds){
+  int max_fd=0;
+  for (size_t i=0;i<fds.size();i++){
+    max_fd=max(max_fd,fds[i]);
+  }
+  return max_fd;
 }

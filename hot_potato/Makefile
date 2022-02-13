@@ -3,8 +3,11 @@ CFLAGS=-std=gnu++11 -pedantic -Wall -Werror -ggdb3
 
 all: $(TARGETS)
 
-player: player.cpp
-	g++ -g -o $@ $^
+player: player.o function.o
+	g++ -o $@ $^
+
+player.o: player.cpp function.h
+	g++ $(CFLAGS) -c  $<
 
 ringmaster: ringmaster.o function.o
 	g++ -o $@ $^
