@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#include "function.h"
+#include "potato.h"
 
 using namespace std;
 
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
   if (argc < 3) {
       cout << "Syntax: player <machine_name><port_num>\n" << endl;
-      return 1;
+      return EXIT_FAILURE;
   }
   const char *hostname = argv[1];
   const char *port     = argv[2];
@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
   recv(master_fd,&mynum,sizeof(mynum),0); 
   int num_player=0;
   recv(master_fd,&num_player,sizeof(num_player),0); 
+  cout<<"Connected as player "<<mynum<<" out of "<<num_player<<" total players"<<endl;
   
   //init as server, send port num to master
   int server_socket_fd=init_server("");
@@ -34,26 +35,29 @@ int main(int argc, char *argv[])
   //cout<<"as server port "<<server_port<<endl;
 
   //receive left neighbot descriptor from server
-  char * left_neigh_host=new char[MAXLINE]{0};
-  char * left_neigh_port=new char[MAXLINE]{0}; 
+  char left_neigh_host[MAXLINE];
+  memset(left_neigh_host,0,sizeof(char)*MAXLINE);
+  char left_neigh_port[MAXLINE]; 
+  memset(left_neigh_port,0,sizeof(char)*MAXLINE);
   recv(master_fd,left_neigh_host,MAXLINE,0);
   recv(master_fd,left_neigh_port,MAXLINE,0);
   //cout<<"left host "<<left_neigh_host<<"port "<<left_neigh_port<<endl;
   
   //as client connect to left
   int left_socket_fd=init_client(left_neigh_host,left_neigh_port);
-  //cout<<"Connected to left "<<left_socket_fd<<endl;
+  //cout<<"Connected to left "<<endl;
 
   // as server connect to right
-  char * right_neigh_host=new char[MAXLINE]{0};
-  char * right_neigh_port=new char[MAXLINE]{0};
-  int right_socket_fd=server_send(server_socket_fd,right_neigh_host,right_neigh_port);
-  //cout<<"Connected to right"<<right_neigh_host<<" on "<<right_neigh_port<<endl;
+  char right_neigh_host[MAXLINE];
+  memset(right_neigh_host,0,sizeof(char)*MAXLINE);
+  int right_socket_fd=server_accept(server_socket_fd,right_neigh_host);
+  //cout<<"Connected to right"<<endl;
 
   
   //send ready to play
   string response="Player "+to_string(mynum)+" is ready to play";
-  char * message=new char[MAXLINE]{0};
+  char message[MAXLINE];
+  memset(message,0,sizeof(char)*MAXLINE);
   strcpy(message,response.c_str());
   send(master_fd, message, MAXLINE, 0);
 

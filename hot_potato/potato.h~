@@ -1,6 +1,0 @@
-struct potatp_t {
-  int player;
-  int hop;
-};
-
-typedef potato_t potato;

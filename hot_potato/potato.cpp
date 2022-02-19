@@ -4,7 +4,7 @@
 
 #include <cstring>
 #include <iostream>
-#include "function.h"
+#include "potato.h"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ int init_client(const char * hostname, const char * port) {
     exit(EXIT_FAILURE);;
   }  //if
 
-  cout << "Connecting to " << hostname << " on port " << port << "..." << endl;
+  //cout << "Connecting to " << hostname << " on port " << port << "..." << endl;
 
   status = connect(socket_fd, host_info_list->ai_addr, host_info_list->ai_addrlen);
   if (status == -1) {
@@ -103,7 +103,7 @@ int init_server(const char * port){
     exit(EXIT_FAILURE);;
   } 
 
-  cout << "Waiting for connection on port " << port << endl;
+  //cout << "Waiting for connection on port " << port << endl;
   // struct sockaddr_storage socket_addr;
   // socklen_t socket_addr_len = sizeof(socket_addr);
   // int client_connection_fd;
@@ -126,7 +126,7 @@ int init_server(const char * port){
 }
 
 
-int server_send(int listenfd, char * client_hostname, char * client_port){
+int server_accept(int listenfd, char * client_hostname){
   socklen_t clientlen;
   struct sockaddr_storage clientaddr; /* Enough space for any address */
   //char client_hostname[MAXLINE], client_port[MAXLINE];
@@ -145,10 +145,8 @@ int server_send(int listenfd, char * client_hostname, char * client_port){
   service, MAXLINE, 0);
 
   memcpy(client_hostname,host,MAXLINE);
-  memcpy(client_port,service,MAXLINE);
   
   return connfd;
-
   
 }
 

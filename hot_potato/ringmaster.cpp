@@ -1,8 +1,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "function.h"
-//#include "potato.h"
+#include "potato.h"
 #include <cstring>
 #include <iostream>
 #include  <vector>
@@ -25,8 +24,8 @@ int main(int argc, char * argv[]) {
   int num_player=atoi(argv[2]);
   int num_hops=atoi(argv[3]);
   cout<<"Potato Ringmaster"<<endl;
-  cout<<"Players ="<<num_player<<endl;
-  cout<<"Hops ="<<num_hops<<endl;
+  cout<<"Players = "<<num_player<<endl;
+  cout<<"Hops = "<<num_hops<<endl;
 
   //intial as server
   int socket_fd=init_server(master_port);
@@ -37,11 +36,12 @@ int main(int argc, char * argv[]) {
   vector<char *> players_port;
   for (int i=0;i<num_player;i++){
     char * client_hostname=new char[MAXLINE]{0};
-    char * client_port=new char[MAXLINE]{0};
+    //memset(client_hostname,0,sizeof(char)*MAXLINE);
     char * player_server_port=new char[MAXLINE]{0};
+    //memset(player_server_port,0,sizeof(char)*MAXLINE);
 
-    int connfd=server_send(socket_fd,client_hostname,client_port);
-    cout<<"Connected to "<<client_hostname<<" on "<<client_port<<endl;
+    int connfd=server_accept(socket_fd,client_hostname);
+    //cout<<"Connected to "<<client_hostname<<" on "<<client_port<<endl;
     send(connfd,&i,sizeof(i),0);
     send(connfd,&num_player,sizeof(num_player),0);
     recv(connfd,player_server_port,sizeof(player_server_port),0);
@@ -58,8 +58,13 @@ int main(int argc, char * argv[]) {
     send_ip(left_neigh_id,players_fd[i],players_port);
     // //send player own port
     // send_ip(i,players_fd[i],players_port);
-
   }
+    for (int i=0;i<num_player;i++){
+      delete[] players_hostname[i];
+      delete[] players_port[i];
+  }
+
+
   for (int i=0;i<num_player;i++){   
     //receive ready to play
     char message[MAXLINE];
@@ -87,7 +92,7 @@ int main(int argc, char * argv[]) {
   select(numfds + 1, &readfds, NULL, NULL, NULL);
 
   
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < num_player; i++) {
     if (FD_ISSET(players_fd[i], &readfds)) {
       recv(players_fd[i], &init_potato, sizeof(init_potato), MSG_WAITALL);
       cout<<"Trace of potato:"<<endl;
@@ -96,6 +101,7 @@ int main(int argc, char * argv[]) {
         if (i!=init_potato.round-1){
           cout<<",";
         }
+        
       }
       cout<<endl;
       break;
