@@ -103,20 +103,6 @@ int init_server(const char * port){
     exit(EXIT_FAILURE);;
   } 
 
-  //cout << "Waiting for connection on port " << port << endl;
-  // struct sockaddr_storage socket_addr;
-  // socklen_t socket_addr_len = sizeof(socket_addr);
-  // int client_connection_fd;
-  // client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
-  // if (client_connection_fd == -1) {
-  //   cerr << "Error: cannot accept connection on socket" << endl;
-  //   exit(EXIT_FAILURE);;
-  // } //if
-
-  // char buffer[512];
-  // recv(client_connection_fd, buffer, 9, 0);
-  // buffer[9] = 0;
-
   // cout << "Server received: " << buffer << endl;
 
   freeaddrinfo(host_info_list);
@@ -168,4 +154,16 @@ int max_fds(vector<int> & fds){
     max_fd=max(max_fd,fds[i]);
   }
   return max_fd;
+}
+
+char * receive_message(int connfd){
+  char * message=new char[MAXLINE]{0};
+  //memset(message,0,sizeof(char)*MAXLINE);
+  recv(connfd,message,MAXLINE,0);
+  return message;
+}
+
+void send_ip(int index,int connfd, vector<char *> & library){
+    char * neigh_ip=library[index];
+    send(connfd,neigh_ip,MAXLINE,0);
 }

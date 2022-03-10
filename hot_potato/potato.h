@@ -14,6 +14,8 @@ int init_server(const char * port);
 int server_accept(int listenfd, char * client_hostname);
 int get_port(int socket_fd);
 int max_fds(vector<int> & fds);
+char * receive_message(int connfd);
+void send_ip(int index,int connfd, vector<char *> & library);
 
 class Potato {
   public:

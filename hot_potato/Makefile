@@ -1,4 +1,4 @@
-TARGETS=player ringmaster potato
+TARGETS=player ringmaster
 CFLAGS=-std=gnu++11 -pedantic -Wall -Werror -ggdb3
 
 all: $(TARGETS)

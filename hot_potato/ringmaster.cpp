@@ -8,10 +8,7 @@
 
 using namespace std;
 
-void send_ip(int index,int connfd, vector<char *> & library){
-    char * neigh_ip=library[index];
-    send(connfd,neigh_ip,MAXLINE,0);
-}
+
 
 
 int main(int argc, char * argv[]) {
@@ -22,6 +19,10 @@ int main(int argc, char * argv[]) {
 
   const char * master_port=argv[1];
   int num_player=atoi(argv[2]);
+  if (num_player<=1) {
+    cout << "player must greater than 1" << endl;
+    exit(EXIT_FAILURE);
+  }
   int num_hops=atoi(argv[3]);
   cout<<"Potato Ringmaster"<<endl;
   cout<<"Players = "<<num_player<<endl;

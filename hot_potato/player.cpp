@@ -9,6 +9,8 @@ using namespace std;
 
 
 
+
+
 int main(int argc, char *argv[])
 {
   if (argc < 3) {
@@ -35,16 +37,14 @@ int main(int argc, char *argv[])
   //cout<<"as server port "<<server_port<<endl;
 
   //receive left neighbot descriptor from server
-  char left_neigh_host[MAXLINE];
-  memset(left_neigh_host,0,sizeof(char)*MAXLINE);
-  char left_neigh_port[MAXLINE]; 
-  memset(left_neigh_port,0,sizeof(char)*MAXLINE);
-  recv(master_fd,left_neigh_host,MAXLINE,0);
-  recv(master_fd,left_neigh_port,MAXLINE,0);
+  char * left_neigh_host=receive_message(master_fd);
+  char * left_neigh_port=receive_message(master_fd);
   //cout<<"left host "<<left_neigh_host<<"port "<<left_neigh_port<<endl;
   
   //as client connect to left
   int left_socket_fd=init_client(left_neigh_host,left_neigh_port);
+  delete left_neigh_host;
+  delete left_neigh_port;
   //cout<<"Connected to left "<<endl;
 
   // as server connect to right
@@ -56,10 +56,10 @@ int main(int argc, char *argv[])
   
   //send ready to play
   string response="Player "+to_string(mynum)+" is ready to play";
-  char message[MAXLINE];
-  memset(message,0,sizeof(char)*MAXLINE);
-  strcpy(message,response.c_str());
-  send(master_fd, message, MAXLINE, 0);
+  // char message[MAXLINE];
+  // memset(message,0,sizeof(char)*MAXLINE);
+  // strcpy(message,response.c_str());
+  send(master_fd, response.c_str(), MAXLINE, 0);
 
   //start play potato
   Potato hot_potato;
@@ -83,9 +83,12 @@ int main(int argc, char *argv[])
       }
     }
   
+    //end with hops=0 or ringmaster close
     if (hot_potato.remain_hop==0 or rv==0 ){
       break;
     }
+
+    //send potato to neighbor
     int potato_status=hot_potato.trace_potato(mynum);//1 continue,0 end
 
     if (potato_status==1){//continue send to neighbor
