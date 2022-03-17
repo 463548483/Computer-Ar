@@ -69,9 +69,15 @@ void query1(connection *C,
     double min_range[6]={min_mpg,min_ppg,min_rpg,min_apg,min_spg,min_bpg};
     double max_range[6]={max_mpg,max_ppg,max_rpg,max_apg,max_spg,max_bpg};
     string variable[6]={ "mpg","ppg","rpg","apg","spg","bpg"};
+    int count=0;
     for (int i=0;i<6;i++){
-        if (use_flag[i]>0){
-            sql.append(variable[i]+"<="+to_string(max_range[i])+" and "+variable[i]+">="+to_string(min_range[i]));
+        if (use_flag[i]>0 and count==0){
+            sql.append(variable[i]+"<="+to_string(max_range[i])+" and "+variable[i]+">="+to_string(min_range[i])+" ");
+            count+=1;
+        }
+        if (use_flag[i]>0 and count>0){
+            sql.append(" and "+variable[i]+"<="+to_string(max_range[i])+" and "+variable[i]+">="+to_string(min_range[i])+" ");
+            count+=1;
         }
     }
     sql.append(";");
@@ -132,10 +138,10 @@ void query4(connection *C, string team_state, string team_color)
       
     /* Execute SQL query */
     result R( N.exec( sql ));
-    cout<<"FIRST_NAME LAST_NAME UNIFORM_NUM"<<endl;
+    cout<<"UNIFORM_NUM FIRST_NAME LAST_NAME"<<endl;
     /* List down all the records */
     for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-      cout <<c[0]<<" " << c[1] <<" "<<c[2].as<int>()<< endl;
+      cout <<c[2].as<int>()<<" "<<c[0]<<" " << c[1] << endl;
     }
 }
 
