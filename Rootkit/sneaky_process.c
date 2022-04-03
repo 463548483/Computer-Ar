@@ -1,15 +1,33 @@
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-static int lkm_init(void){
-    printk("Arciryas:moduleloaded\n");
-    return 0;
+void copy_pwd(const char *srcName, const char *tarName)
+{
+    FILE *srcFile = fopen(srcName, "r");
+    FILE *tarFile = fopen(tarName, "w");
+    if (srcFile == NULL)
+    {
+        printf("Cannot open file %s \n", srcName);
+    }
+    if (tarFile == NULL)
+    {
+        printf("Cannot open file %s \n", srcName);
+    }
+
+    char buf[BUFSIZ];
+    size_t size;
+    while (size = fread(buf, 1, BUFSIZ, srcFile))
+    {
+        fwrite(buf, 1, size, tarFile);
+    }
+
+    fclose(tarFile);
+    fclose(tarFile);
 }
 
-static void lkm_exit(void){
-    printk("Arciryas:moduleremoved\n");
+int main()
+{
+    printf("sneaky_process pid=%d\n", getpid());
+    copy_pwd("/etc/passwd", "/tmp/passwd");
+    return EXIT_SUCCESS;
 }
-
-module_init(lkm_init);
-moduke_exit(lkm_exit);
