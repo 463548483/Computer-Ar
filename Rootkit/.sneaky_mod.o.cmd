@@ -929,6 +929,7 @@ deps_/home/zw255/ece650/Rootkit/sneaky_mod.o := \
   arch/x86/include/asm/orc_types.h \
   arch/x86/include/asm/sections.h \
   include/asm-generic/sections.h \
+  include/linux/dirent.h \
 
 /home/zw255/ece650/Rootkit/sneaky_mod.o: $(deps_/home/zw255/ece650/Rootkit/sneaky_mod.o)
 
